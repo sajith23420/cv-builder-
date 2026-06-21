@@ -7,7 +7,6 @@ import { useCVStore } from '@/store/useCVStore';
 
 // Templates
 import { ModernMinimalist } from '@/components/templates/ModernMinimalist';
-import { ExecutiveTraditional } from '@/components/templates/ExecutiveTraditional';
 import { CreativeProfessional } from '@/components/templates/CreativeProfessional';
 import { TechFocused } from '@/components/templates/TechFocused';
 import { DataDense } from '@/components/templates/DataDense';
@@ -19,7 +18,6 @@ interface Props {
 
 const templates: Record<string, React.FC<{ data: any }>> = {
   modern: ModernMinimalist,
-  executive: ExecutiveTraditional,
   creative: CreativeProfessional,
   tech: TechFocused,
   dense: DataDense,

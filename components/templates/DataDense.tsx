@@ -88,7 +88,8 @@ export const DataDense = ({ data }: { data: CVData }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={true}>
+        <View wrap={true}>
 
         {/* HEADER */}
         <View style={styles.header}>
@@ -111,7 +112,7 @@ export const DataDense = ({ data }: { data: CVData }) => {
         </View>
 
         {/* PROFESSIONAL SUMMARY */}
-        {data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
+        {data.visibleSections?.summary && data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Summary</Text>
             <Html stylesheet={htmlStyles}>{data.professionalSummaryHtml}</Html>
@@ -119,7 +120,7 @@ export const DataDense = ({ data }: { data: CVData }) => {
         )}
 
         {/* TECHNICAL SKILLS */}
-        {(data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
+        {data.visibleSections?.skills && (data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Skills</Text>
             {data.technicalSkills.programming.length > 0 && <View style={styles.skillRow}><Text style={styles.skillLabel}>Programming:</Text><Text style={styles.skillValue}>{data.technicalSkills.programming.join(', ')}</Text></View>}
@@ -132,7 +133,7 @@ export const DataDense = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROFESSIONAL EXPERIENCE */}
-        {data.professionalExperience.length > 0 && (
+        {data.visibleSections?.experience && data.professionalExperience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Experience</Text>
             {data.professionalExperience.map((exp) => (
@@ -152,7 +153,7 @@ export const DataDense = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROJECT EXPERIENCE */}
-        {data.projectExperience.length > 0 && (
+        {data.visibleSections?.projects && data.projectExperience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Projects</Text>
             {data.projectExperience.map((proj) => (
@@ -173,7 +174,7 @@ export const DataDense = ({ data }: { data: CVData }) => {
         )}
 
         {/* EDUCATION */}
-        {data.education.length > 0 && (
+        {data.visibleSections?.education && data.education.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
             {data.education.map((edu) => (
@@ -188,6 +189,40 @@ export const DataDense = ({ data }: { data: CVData }) => {
           </View>
         )}
 
+        {/* CERTIFICATIONS */}
+        {data.visibleSections?.certifications && data.certifications?.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Certifications</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {data.certifications.map((cert, idx) => (
+                <Text key={idx} style={{ fontSize: 8.5, color: THEME_DARK, width: '50%', marginBottom: 2 }}>
+                  • {cert}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* REFERENCES */}
+        {data.visibleSections?.references && data.references?.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>References</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {data.references.map((ref) => (
+                <View key={ref.id} style={{ width: '50%', marginBottom: 4 }}>
+                  <Text style={styles.itemTitle}>{ref.name}</Text>
+                  <Text style={{ fontSize: 8.5, color: THEME_DARK, fontFamily: 'Helvetica-Oblique' }}>
+                    {ref.title}{ref.organization ? `, ${ref.organization}` : ''}
+                  </Text>
+                  <Text style={{ fontSize: 8.5, color: THEME_GRAY }}>{ref.email}</Text>
+                  <Text style={{ fontSize: 8.5, color: THEME_GRAY }}>{ref.phone}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        </View>
       </Page>
     </Document>
   );

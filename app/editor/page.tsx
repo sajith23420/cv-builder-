@@ -30,45 +30,29 @@ export default function EditorPage() {
   }
 
   return (
-    <main className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans selection:bg-red-200 selection:text-red-900">
+    <main className="h-[calc(100vh-80px)] flex flex-col overflow-hidden font-sans selection:bg-blue-500/30 selection:text-white">
       
-      {/* GLOBAL HEADER */}
-      <header className="w-full bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between z-20 shadow-sm relative shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center shadow-inner">
-            <span className="text-white font-bold text-lg">CV</span>
-          </div>
-          <h1 className="text-xl font-extrabold text-slate-800 tracking-tight hidden sm:block">Editor</h1>
-        </div>
-        <div className="flex-1 flex justify-center px-4">
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="/templates" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-            Change Template
-          </a>
-        </div>
-      </header>
-
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* LEFT SIDE: SCROLLABLE FORM */}
-        <div className="w-full lg:w-1/2 h-full overflow-y-auto border-r border-slate-200 custom-scrollbar bg-slate-50/50 backdrop-blur-sm">
+        <div className="w-full lg:w-[45%] xl:w-[40%] h-full overflow-y-auto border-r border-white/10 custom-scrollbar bg-white/5 backdrop-blur-md">
           <div className="p-4 md:p-8 lg:px-12 pt-8">
             <CVForm pdfDownloadButton={<PDFExportWrapper mode="button" />} />
           </div>
         </div>
         
         {/* RIGHT SIDE: STICKY PDF PREVIEW */}
-        <div className="w-full lg:w-1/2 h-full bg-slate-900 hidden lg:flex flex-col relative">
-          <div className="absolute inset-0 p-8 pt-6">
-            <div className="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10 flex items-center justify-center relative z-10">
+        <div className="flex-1 h-full hidden lg:flex flex-col relative bg-transparent">
+          <div className="absolute inset-0 p-8 pt-6 flex items-center justify-center">
+            {/* Elegant framing for the PDF preview */}
+            <div className="w-full max-w-4xl h-full bg-slate-900/50 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10 flex items-center justify-center relative z-10">
               <PDFExportWrapper mode="viewer" />
             </div>
-            <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-            <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+            {/* Subtle glow behind PDF viewer */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-blue-500/10 blur-[100px] rounded-full z-0 pointer-events-none" />
           </div>
         </div>
         
-        <div className="lg:hidden p-4 bg-slate-900 text-white text-center text-sm font-medium z-50 fixed bottom-0 w-full shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div className="lg:hidden p-4 bg-black/80 backdrop-blur-md text-white text-center text-sm font-medium z-50 fixed bottom-0 w-full border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
           PDF preview is hidden on small screens. Use a larger screen to view your CV in real-time.
         </div>
       </div>

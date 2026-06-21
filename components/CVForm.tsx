@@ -16,7 +16,7 @@ import 'react-quill-new/dist/quill.snow.css';
 // Dynamically import ReactQuill
 const ReactQuill = dynamic(() => import('react-quill-new'), { 
   ssr: false, 
-  loading: () => <div className="h-32 bg-slate-100 animate-pulse rounded-lg border border-slate-200"></div> 
+  loading: () => <div className="h-32 bg-black/20 border border-white/10 animate-pulse rounded-xl"></div> 
 });
 
 interface CVFormProps {
@@ -30,7 +30,8 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
     addProjectExperience, updateProjectExperience, removeProjectExperience,
     addEducation, updateEducation, removeEducation,
     setCertifications,
-    addReference, updateReference, removeReference
+    addReference, updateReference, removeReference,
+    toggleSectionVisibility
   } = useCVStore();
 
   const [expandedSection, setExpandedSection] = useState<string | null>('personal');
@@ -57,34 +58,57 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
     }
   };
 
-  const SectionHeader = ({ id, icon: Icon, title }: { id: string, icon: any, title: string }) => (
-    <button 
-      onClick={() => toggleSection(id)}
-      className="w-full flex items-center justify-between p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-red-300 hover:shadow-md transition-all duration-200"
-    >
-      <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${expandedSection === id ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
-          <Icon size={20} />
+  const SectionHeader = ({ id, icon: Icon, title, sectionKey }: { id: string, icon: any, title: string, sectionKey?: keyof typeof cvData.visibleSections }) => {
+    const isVisible = sectionKey ? cvData.visibleSections[sectionKey] : true;
+    
+    return (
+      <div className={`w-full flex items-center justify-between p-5 bg-white/5 backdrop-blur-md border ${isVisible ? 'border-white/10 hover:border-blue-400/50 hover:bg-white/10 shadow-lg' : 'border-white/5 opacity-60'} rounded-2xl transition-all duration-300 group`}>
+        <button 
+          onClick={() => toggleSection(id)}
+          className="flex-1 flex items-center gap-4 text-left"
+        >
+          <div className={`p-2.5 rounded-xl transition-colors ${expandedSection === id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-slate-300'}`}>
+            <Icon size={20} />
+          </div>
+          <h3 className={`text-lg font-bold tracking-tight transition-colors ${isVisible ? 'text-white' : 'text-slate-500'}`}>{title}</h3>
+        </button>
+        
+        <div className="flex items-center gap-3">
+          {sectionKey && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(sectionKey); }}
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${isVisible ? 'text-slate-400 bg-white/5 hover:bg-white/10' : 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20'}`}
+            >
+              {isVisible ? 'Hide' : 'Show'}
+            </button>
+          )}
+          <button onClick={() => toggleSection(id)} className="p-1 focus:outline-none hover:bg-white/10 rounded-lg transition-colors">
+            {expandedSection === id ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
+          </button>
         </div>
-        <h3 className="text-lg font-bold text-slate-800">{title}</h3>
       </div>
-      {expandedSection === id ? <ChevronUp className="text-slate-400" /> : <ChevronDown className="text-slate-400" />}
-    </button>
-  );
+    );
+  };
+
+  const inputClasses = "w-full px-4 py-2.5 bg-black/20 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-white placeholder-slate-500 transition-all shadow-inner";
+  const labelClasses = "block text-sm font-semibold text-slate-300 mb-1.5";
+  const panelClasses = "p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-xl mt-3 animate-in slide-in-from-top-2 duration-300";
+  const itemCardClasses = "p-5 bg-black/20 border border-white/5 rounded-xl relative group shadow-inner";
+  const quillClasses = "bg-black/20 border border-white/10 rounded-xl overflow-hidden [&_.ql-toolbar]:bg-white/5 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-white/10 [&_.ql-toolbar_button]:text-slate-300 [&_.ql-container]:text-white [&_.ql-container]:text-base [&_.ql-container]:border-none shadow-inner";
 
   return (
     <div className="max-w-4xl mx-auto pb-12 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-slate-900 rounded-2xl shadow-xl text-white gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-white gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Your CV Builder</h1>
-          <p className="text-slate-300 text-sm mt-1">Complete your details below to generate your ATS-friendly CV.</p>
+          <h1 className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">CV Editor</h1>
+          <p className="text-slate-400 text-sm mt-1 font-light">Complete your details below to instantly update the PDF preview.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleDownloadWord}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600/80 hover:bg-blue-600 rounded-xl transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] border border-blue-500/50"
           >
-            <FileIcon size={16} /> Download as Word
+            <FileIcon size={16} /> Download DOCX
           </button>
           
           {pdfDownloadButton}
@@ -98,34 +122,34 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
       <div className="space-y-4">
         <SectionHeader id="personal" icon={User} title="Your Personal Details" />
         {expandedSection === 'personal' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-5 animate-in slide-in-from-top-2 duration-200">
+          <div className={`${panelClasses} grid grid-cols-1 md:grid-cols-2 gap-5`}>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your full name</label>
-              <input type="text" value={cvData.personalInfo.fullName} onChange={(e) => setPersonalInfo({ fullName: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. Jane Doe" />
+              <label className={labelClasses}>Enter your full name</label>
+              <input type="text" value={cvData.personalInfo.fullName} onChange={(e) => setPersonalInfo({ fullName: e.target.value })} className={inputClasses} placeholder="e.g. Jane Doe" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your professional title</label>
-              <input type="text" value={cvData.personalInfo.title} onChange={(e) => setPersonalInfo({ title: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. Senior Software Engineer" />
+              <label className={labelClasses}>Enter your professional title</label>
+              <input type="text" value={cvData.personalInfo.title} onChange={(e) => setPersonalInfo({ title: e.target.value })} className={inputClasses} placeholder="e.g. Senior Software Engineer" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your email address</label>
-              <input type="email" value={cvData.personalInfo.email} onChange={(e) => setPersonalInfo({ email: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. you@example.com" />
+              <label className={labelClasses}>Enter your email address</label>
+              <input type="email" value={cvData.personalInfo.email} onChange={(e) => setPersonalInfo({ email: e.target.value })} className={inputClasses} placeholder="e.g. you@example.com" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your phone number</label>
-              <input type="text" value={cvData.personalInfo.phone} onChange={(e) => setPersonalInfo({ phone: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. +1 234 567 890" />
+              <label className={labelClasses}>Enter your phone number</label>
+              <input type="text" value={cvData.personalInfo.phone} onChange={(e) => setPersonalInfo({ phone: e.target.value })} className={inputClasses} placeholder="e.g. +1 234 567 890" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your location</label>
-              <input type="text" value={cvData.personalInfo.location} onChange={(e) => setPersonalInfo({ location: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. New York, NY" />
+              <label className={labelClasses}>Enter your location</label>
+              <input type="text" value={cvData.personalInfo.location} onChange={(e) => setPersonalInfo({ location: e.target.value })} className={inputClasses} placeholder="e.g. New York, NY" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your LinkedIn URL</label>
-              <input type="text" value={cvData.personalInfo.linkedin} onChange={(e) => setPersonalInfo({ linkedin: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. linkedin.com/in/janedoe" />
+              <label className={labelClasses}>Enter your LinkedIn URL</label>
+              <input type="text" value={cvData.personalInfo.linkedin} onChange={(e) => setPersonalInfo({ linkedin: e.target.value })} className={inputClasses} placeholder="e.g. linkedin.com/in/janedoe" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Enter your GitHub or Portfolio URL</label>
-              <input type="text" value={cvData.personalInfo.github} onChange={(e) => setPersonalInfo({ github: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all" placeholder="e.g. github.com/janedoe" />
+              <label className={labelClasses}>Enter your GitHub or Portfolio URL</label>
+              <input type="text" value={cvData.personalInfo.github} onChange={(e) => setPersonalInfo({ github: e.target.value })} className={inputClasses} placeholder="e.g. github.com/janedoe" />
             </div>
           </div>
         )}
@@ -133,11 +157,11 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Summary Section */}
       <div className="space-y-4">
-        <SectionHeader id="summary" icon={FileText} title="Your Professional Summary" />
+        <SectionHeader id="summary" icon={FileText} title="Your Professional Summary" sectionKey="summary" />
         {expandedSection === 'summary' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm animate-in slide-in-from-top-2 duration-200">
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Write your professional summary</label>
-            <div className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden [&_.ql-toolbar]:bg-white [&_.ql-container]:text-base">
+          <div className={panelClasses}>
+            <label className={labelClasses}>Write your professional summary</label>
+            <div className={quillClasses}>
               <ReactQuill 
                 theme="snow" 
                 value={cvData.professionalSummaryHtml} 
@@ -151,34 +175,34 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Technical Skills Section */}
       <div className="space-y-4">
-        <SectionHeader id="skills" icon={Code} title="Your Technical Skills" />
+        <SectionHeader id="skills" icon={Code} title="Your Technical Skills" sectionKey="skills" />
         {expandedSection === 'skills' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-5 animate-in slide-in-from-top-2 duration-200">
-            <p className="text-sm text-slate-500 mb-2">Separate your skills with commas.</p>
+          <div className={`${panelClasses} space-y-5`}>
+            <p className="text-sm text-slate-400 mb-2 font-light">Separate your skills with commas.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Programming Languages</label>
-                <input type="text" value={cvData.technicalSkills.programming.join(', ')} onChange={(e) => setTechnicalSkills({ programming: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. JavaScript, Python, Java" />
+                <label className={labelClasses}>Programming Languages</label>
+                <input type="text" value={cvData.technicalSkills.programming.join(', ')} onChange={(e) => setTechnicalSkills({ programming: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. JavaScript, Python, Java" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Databases & SQL</label>
-                <input type="text" value={cvData.technicalSkills.databaseSQL.join(', ')} onChange={(e) => setTechnicalSkills({ databaseSQL: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. PostgreSQL, MongoDB" />
+                <label className={labelClasses}>Databases & SQL</label>
+                <input type="text" value={cvData.technicalSkills.databaseSQL.join(', ')} onChange={(e) => setTechnicalSkills({ databaseSQL: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. PostgreSQL, MongoDB" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">API & Testing</label>
-                <input type="text" value={cvData.technicalSkills.apiIntegrationTesting.join(', ')} onChange={(e) => setTechnicalSkills({ apiIntegrationTesting: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. REST, GraphQL, Jest" />
+                <label className={labelClasses}>API & Testing</label>
+                <input type="text" value={cvData.technicalSkills.apiIntegrationTesting.join(', ')} onChange={(e) => setTechnicalSkills({ apiIntegrationTesting: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. REST, GraphQL, Jest" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">System Testing & QA</label>
-                <input type="text" value={cvData.technicalSkills.systemTestingQA.join(', ')} onChange={(e) => setTechnicalSkills({ systemTestingQA: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Selenium, Cypress" />
+                <label className={labelClasses}>System Testing & QA</label>
+                <input type="text" value={cvData.technicalSkills.systemTestingQA.join(', ')} onChange={(e) => setTechnicalSkills({ systemTestingQA: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. Selenium, Cypress" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Tools</label>
-                <input type="text" value={cvData.technicalSkills.tools.join(', ')} onChange={(e) => setTechnicalSkills({ tools: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Git, Docker, AWS" />
+                <label className={labelClasses}>Tools</label>
+                <input type="text" value={cvData.technicalSkills.tools.join(', ')} onChange={(e) => setTechnicalSkills({ tools: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. Git, Docker, AWS" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Consulting & Business</label>
-                <input type="text" value={cvData.technicalSkills.consultingBusiness.join(', ')} onChange={(e) => setTechnicalSkills({ consultingBusiness: e.target.value.split(',').map(s => s.trimStart()) })} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Agile, Scrum, Leadership" />
+                <label className={labelClasses}>Consulting & Business</label>
+                <input type="text" value={cvData.technicalSkills.consultingBusiness.join(', ')} onChange={(e) => setTechnicalSkills({ consultingBusiness: e.target.value.split(',').map(s => s.trimStart()) })} className={inputClasses} placeholder="e.g. Agile, Scrum, Leadership" />
               </div>
             </div>
           </div>
@@ -187,33 +211,33 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Professional Experience Section */}
       <div className="space-y-4">
-        <SectionHeader id="experience" icon={Briefcase} title="Your Professional Experience" />
+        <SectionHeader id="experience" icon={Briefcase} title="Your Professional Experience" sectionKey="experience" />
         {expandedSection === 'experience' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 animate-in slide-in-from-top-2 duration-200">
+          <div className={`${panelClasses} space-y-6`}>
             {cvData.professionalExperience.map((exp) => (
-              <div key={exp.id} className="p-5 bg-slate-50 border border-slate-200 rounded-xl relative group">
-                <button onClick={() => removeProfessionalExperience(exp.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors bg-white p-2 rounded-lg shadow-sm">
+              <div key={exp.id} className={itemCardClasses}>
+                <button onClick={() => removeProfessionalExperience(exp.id)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-sm border border-white/5">
                   <Trash2 size={16} />
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pr-10">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Your job title</label>
-                    <input type="text" value={exp.title} onChange={(e) => updateProfessionalExperience(exp.id, { title: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Software Engineer" />
+                    <label className={labelClasses}>Your job title</label>
+                    <input type="text" value={exp.title} onChange={(e) => updateProfessionalExperience(exp.id, { title: e.target.value })} className={inputClasses} placeholder="e.g. Software Engineer" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Your company</label>
-                    <input type="text" value={exp.company} onChange={(e) => updateProfessionalExperience(exp.id, { company: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Tech Corp Inc." />
+                    <label className={labelClasses}>Your company</label>
+                    <input type="text" value={exp.company} onChange={(e) => updateProfessionalExperience(exp.id, { company: e.target.value })} className={inputClasses} placeholder="e.g. Tech Corp Inc." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Dates of employment</label>
-                    <input type="text" value={exp.dates} onChange={(e) => updateProfessionalExperience(exp.id, { dates: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Jan 2020 - Present" />
+                    <label className={labelClasses}>Dates of employment</label>
+                    <input type="text" value={exp.dates} onChange={(e) => updateProfessionalExperience(exp.id, { dates: e.target.value })} className={inputClasses} placeholder="e.g. Jan 2020 - Present" />
                   </div>
                 </div>
                 
                 {/* Rich Text Editor for Description */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Add your achievements (Use bullet points for ATS)</label>
-                  <div className="bg-white border border-slate-200 rounded-lg overflow-hidden [&_.ql-toolbar]:bg-slate-50">
+                  <label className={labelClasses}>Add your achievements (Use bullet points for ATS)</label>
+                  <div className={quillClasses}>
                     <ReactQuill 
                       theme="snow" 
                       value={exp.descriptionHtml} 
@@ -227,7 +251,7 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
             
             <button 
               onClick={() => addProfessionalExperience({ id: crypto.randomUUID(), title: '', company: '', dates: '', descriptionHtml: '' })}
-              className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-600 font-semibold rounded-xl hover:border-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-white/20 text-slate-300 font-semibold rounded-xl hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <Plus size={20} /> Add New Experience
             </button>
@@ -237,33 +261,33 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Project Experience Section */}
       <div className="space-y-4">
-        <SectionHeader id="projects" icon={Code} title="Your Projects" />
+        <SectionHeader id="projects" icon={Code} title="Your Projects" sectionKey="projects" />
         {expandedSection === 'projects' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 animate-in slide-in-from-top-2 duration-200">
+          <div className={`${panelClasses} space-y-6`}>
             {cvData.projectExperience.map((proj) => (
-              <div key={proj.id} className="p-5 bg-slate-50 border border-slate-200 rounded-xl relative group">
-                <button onClick={() => removeProjectExperience(proj.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors bg-white p-2 rounded-lg shadow-sm">
+              <div key={proj.id} className={itemCardClasses}>
+                <button onClick={() => removeProjectExperience(proj.id)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-sm border border-white/5">
                   <Trash2 size={16} />
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pr-10">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Your project name</label>
-                    <input type="text" value={proj.projectName} onChange={(e) => updateProjectExperience(proj.id, { projectName: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. E-Commerce Platform" />
+                    <label className={labelClasses}>Your project name</label>
+                    <input type="text" value={proj.projectName} onChange={(e) => updateProjectExperience(proj.id, { projectName: e.target.value })} className={inputClasses} placeholder="e.g. E-Commerce Platform" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Tech stack used</label>
-                    <input type="text" value={proj.techStack} onChange={(e) => updateProjectExperience(proj.id, { techStack: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. React, Node.js, MongoDB" />
+                    <label className={labelClasses}>Tech stack used</label>
+                    <input type="text" value={proj.techStack} onChange={(e) => updateProjectExperience(proj.id, { techStack: e.target.value })} className={inputClasses} placeholder="e.g. React, Node.js, MongoDB" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Project dates</label>
-                    <input type="text" value={proj.dates} onChange={(e) => updateProjectExperience(proj.id, { dates: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Jan 2022 - Mar 2022" />
+                    <label className={labelClasses}>Project dates</label>
+                    <input type="text" value={proj.dates} onChange={(e) => updateProjectExperience(proj.id, { dates: e.target.value })} className={inputClasses} placeholder="e.g. Jan 2022 - Mar 2022" />
                   </div>
                 </div>
                 
                 {/* Rich Text Editor */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Add project details</label>
-                  <div className="bg-white border border-slate-200 rounded-lg overflow-hidden [&_.ql-toolbar]:bg-slate-50">
+                  <label className={labelClasses}>Add project details</label>
+                  <div className={quillClasses}>
                     <ReactQuill 
                       theme="snow" 
                       value={proj.descriptionHtml} 
@@ -277,7 +301,7 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
             
             <button 
               onClick={() => addProjectExperience({ id: crypto.randomUUID(), projectName: '', techStack: '', dates: '', descriptionHtml: '' })}
-              className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-600 font-semibold rounded-xl hover:border-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-white/20 text-slate-300 font-semibold rounded-xl hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <Plus size={20} /> Add New Project
             </button>
@@ -287,30 +311,30 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Education Section */}
       <div className="space-y-4">
-        <SectionHeader id="education" icon={GraduationCap} title="Your Education" />
+        <SectionHeader id="education" icon={GraduationCap} title="Your Education" sectionKey="education" />
         {expandedSection === 'education' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 animate-in slide-in-from-top-2 duration-200">
+          <div className={`${panelClasses} space-y-6`}>
             {cvData.education.map((edu) => (
-              <div key={edu.id} className="p-5 bg-slate-50 border border-slate-200 rounded-xl relative group">
-                <button onClick={() => removeEducation(edu.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors bg-white p-2 rounded-lg shadow-sm">
+              <div key={edu.id} className={itemCardClasses}>
+                <button onClick={() => removeEducation(edu.id)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-sm border border-white/5">
                   <Trash2 size={16} />
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Your degree</label>
-                    <input type="text" value={edu.degree} onChange={(e) => updateEducation(edu.id, { degree: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. B.S. Computer Science" />
+                    <label className={labelClasses}>Your degree</label>
+                    <input type="text" value={edu.degree} onChange={(e) => updateEducation(edu.id, { degree: e.target.value })} className={inputClasses} placeholder="e.g. B.S. Computer Science" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Your university/institution</label>
-                    <input type="text" value={edu.university} onChange={(e) => updateEducation(edu.id, { university: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Tech University" />
+                    <label className={labelClasses}>Your university/institution</label>
+                    <input type="text" value={edu.university} onChange={(e) => updateEducation(edu.id, { university: e.target.value })} className={inputClasses} placeholder="e.g. Tech University" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Expected/Graduation year</label>
-                    <input type="text" value={edu.expectedYear} onChange={(e) => updateEducation(edu.id, { expectedYear: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. May 2024" />
+                    <label className={labelClasses}>Expected/Graduation year</label>
+                    <input type="text" value={edu.expectedYear} onChange={(e) => updateEducation(edu.id, { expectedYear: e.target.value })} className={inputClasses} placeholder="e.g. May 2024" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Relevant study areas (optional)</label>
-                    <input type="text" value={edu.relevantAreas} onChange={(e) => updateEducation(edu.id, { relevantAreas: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Machine Learning, Data Structures" />
+                    <label className={labelClasses}>Relevant study areas (optional)</label>
+                    <input type="text" value={edu.relevantAreas} onChange={(e) => updateEducation(edu.id, { relevantAreas: e.target.value })} className={inputClasses} placeholder="e.g. Machine Learning, Data Structures" />
                   </div>
                 </div>
               </div>
@@ -318,7 +342,7 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
             
             <button 
               onClick={() => addEducation({ id: crypto.randomUUID(), degree: '', university: '', expectedYear: '', relevantAreas: '' })}
-              className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-600 font-semibold rounded-xl hover:border-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-white/20 text-slate-300 font-semibold rounded-xl hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <Plus size={20} /> Add New Education
             </button>
@@ -328,16 +352,16 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* Certifications Section */}
       <div className="space-y-4">
-        <SectionHeader id="certifications" icon={Award} title="Your Certifications" />
+        <SectionHeader id="certifications" icon={Award} title="Your Certifications" sectionKey="certifications" />
         {expandedSection === 'certifications' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm animate-in slide-in-from-top-2 duration-200">
-            <p className="text-sm text-slate-500 mb-4">Add your certifications or training courses. Separate them with commas, or type them out.</p>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Certifications (comma separated)</label>
+          <div className={panelClasses}>
+            <p className="text-sm text-slate-400 font-light mb-4">Add your certifications or training courses. Separate them with commas, or type them out.</p>
+            <label className={labelClasses}>Certifications (comma separated)</label>
             <input 
               type="text" 
               value={cvData.certifications?.join(', ') || ''} 
               onChange={(e) => setCertifications(e.target.value.split(',').map(s => s.trimStart()).filter(s => s))} 
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+              className={inputClasses} 
               placeholder="e.g. AWS Certified Solutions Architect, PMP Certification" 
             />
           </div>
@@ -346,34 +370,34 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
       {/* References Section */}
       <div className="space-y-4">
-        <SectionHeader id="references" icon={Users} title="Your References" />
+        <SectionHeader id="references" icon={Users} title="Your References" sectionKey="references" />
         {expandedSection === 'references' && (
-          <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-sm space-y-6 animate-in slide-in-from-top-2 duration-200">
+          <div className={`${panelClasses} space-y-6`}>
             {(cvData.references || []).map((ref) => (
-              <div key={ref.id} className="p-5 bg-slate-50 border border-slate-200 rounded-xl relative group">
-                <button onClick={() => removeReference(ref.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors bg-white p-2 rounded-lg shadow-sm">
+              <div key={ref.id} className={itemCardClasses}>
+                <button onClick={() => removeReference(ref.id)} className="absolute top-4 right-4 text-slate-500 hover:text-red-400 transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-sm border border-white/5">
                   <Trash2 size={16} />
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Reference Name</label>
-                    <input type="text" value={ref.name} onChange={(e) => updateReference(ref.id, { name: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. John Smith" />
+                    <label className={labelClasses}>Reference Name</label>
+                    <input type="text" value={ref.name} onChange={(e) => updateReference(ref.id, { name: e.target.value })} className={inputClasses} placeholder="e.g. John Smith" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Job Title</label>
-                    <input type="text" value={ref.title} onChange={(e) => updateReference(ref.id, { title: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Director of Engineering" />
+                    <label className={labelClasses}>Job Title</label>
+                    <input type="text" value={ref.title} onChange={(e) => updateReference(ref.id, { title: e.target.value })} className={inputClasses} placeholder="e.g. Director of Engineering" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Organization</label>
-                    <input type="text" value={ref.organization} onChange={(e) => updateReference(ref.id, { organization: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. Tech Corp Inc." />
+                    <label className={labelClasses}>Organization</label>
+                    <input type="text" value={ref.organization} onChange={(e) => updateReference(ref.id, { organization: e.target.value })} className={inputClasses} placeholder="e.g. Tech Corp Inc." />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
-                    <input type="text" value={ref.phone} onChange={(e) => updateReference(ref.id, { phone: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. +1 555-1234" />
+                    <label className={labelClasses}>Phone Number</label>
+                    <input type="text" value={ref.phone} onChange={(e) => updateReference(ref.id, { phone: e.target.value })} className={inputClasses} placeholder="e.g. +1 555-1234" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
-                    <input type="email" value={ref.email} onChange={(e) => updateReference(ref.id, { email: e.target.value })} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g. john.smith@example.com" />
+                    <label className={labelClasses}>Email Address</label>
+                    <input type="email" value={ref.email} onChange={(e) => updateReference(ref.id, { email: e.target.value })} className={inputClasses} placeholder="e.g. john.smith@example.com" />
                   </div>
                 </div>
               </div>
@@ -381,7 +405,7 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
             
             <button 
               onClick={() => addReference({ id: crypto.randomUUID(), name: '', title: '', organization: '', phone: '', email: '' })}
-              className="w-full py-4 border-2 border-dashed border-slate-300 text-slate-600 font-semibold rounded-xl hover:border-red-500 hover:text-red-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 border-2 border-dashed border-white/20 text-slate-300 font-semibold rounded-xl hover:border-blue-500/50 hover:text-blue-400 hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <Plus size={20} /> Add New Reference
             </button>
