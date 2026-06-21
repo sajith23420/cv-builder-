@@ -136,7 +136,8 @@ export const TechFocused = ({ data }: { data: CVData }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={true}>
+        <View wrap={true}>
 
         {/* HEADER */}
         <View style={styles.headerRow}>
@@ -154,7 +155,7 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         </View>
 
         {/* PROFESSIONAL SUMMARY */}
-        {data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
+        {data.visibleSections?.summary !== false && data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/profile</Text></View>
             <Html stylesheet={htmlStyles}>{data.professionalSummaryHtml}</Html>
@@ -162,7 +163,7 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         )}
 
         {/* TECHNICAL SKILLS */}
-        {(data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0) && (
+        {data.visibleSections?.skills !== false && (data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0) && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/skills</Text></View>
             
@@ -188,7 +189,7 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROFESSIONAL EXPERIENCE */}
-        {data.professionalExperience.length > 0 && (
+        {data.visibleSections?.experience !== false && data.professionalExperience.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/experience</Text></View>
             {data.professionalExperience.map((exp) => (
@@ -208,7 +209,7 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROJECT EXPERIENCE */}
-        {data.projectExperience.length > 0 && (
+        {data.visibleSections?.projects !== false && data.projectExperience.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/projects</Text></View>
             {data.projectExperience.map((proj) => (
@@ -233,7 +234,7 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         )}
 
         {/* EDUCATION */}
-        {data.education.length > 0 && (
+        {data.visibleSections?.education !== false && data.education.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/education</Text></View>
             {data.education.map((edu) => (
@@ -249,6 +250,40 @@ export const TechFocused = ({ data }: { data: CVData }) => {
           </View>
         )}
 
+        {/* CERTIFICATIONS */}
+        {data.visibleSections?.certifications !== false && (data.certifications && data.certifications.length > 0) && (
+          <View style={styles.section}>
+            <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/certifications</Text></View>
+            <View style={styles.skillFlexRow}>
+              {data.certifications.map((cert, index) => (
+                <View key={index} style={styles.techSkillBadge}>
+                  <Text style={styles.techSkillText}>{cert}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* REFERENCES */}
+        {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+          <View style={styles.section}>
+            <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/references</Text></View>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+              {data.references.map((ref) => (
+                <View key={ref.id} style={{ width: '50%', marginBottom: 10 }}>
+                  <Text style={styles.itemTitle}>{ref.name}</Text>
+                  <Text style={{ fontSize: 10, fontFamily: 'Courier', color: THEME_GRAY, marginTop: 2 }}>
+                    {ref.title}{ref.organization ? ` @ ${ref.organization}` : ''}
+                  </Text>
+                  {ref.email && <Text style={styles.contactItem}><Link style={styles.link} src={`mailto:${ref.email}`}>{ref.email}</Link></Text>}
+                  {ref.phone && <Text style={styles.contactItem}>{ref.phone}</Text>}
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        </View>
       </Page>
     </Document>
   );

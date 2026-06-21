@@ -2,13 +2,52 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, FileUp, Sparkles, Plus, Loader2 } from 'lucide-react';
+import { Upload, Plus, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 import { useCVParser } from '@/hooks/useCVParser';
+import { motion, Variants } from 'framer-motion';
+
+const FloatingCV = () => (
+  <motion.div 
+    animate={{ y: [-15, 15, -15], rotate: [-2, 2, -2] }}
+    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+    className="relative w-[320px] h-[420px] rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_0_50px_rgba(37,99,235,0.15)] p-6 hidden lg:flex flex-col gap-4 transform rotate-3"
+  >
+    {/* Floating Elements / Mock Resume content */}
+    <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 opacity-80" />
+      <div className="flex flex-col gap-2 flex-1">
+        <div className="w-3/4 h-3 rounded-full bg-white/20" />
+        <div className="w-1/2 h-2 rounded-full bg-white/10" />
+      </div>
+    </div>
+    
+    <div className="w-full h-2 rounded-full bg-white/10 mt-2" />
+    <div className="w-5/6 h-2 rounded-full bg-white/10" />
+    <div className="w-4/6 h-2 rounded-full bg-white/10 mb-4" />
+    
+    <div className="flex gap-4">
+      <div className="w-1/3 h-24 rounded-xl bg-white/5 border border-white/5" />
+      <div className="flex-1 flex flex-col gap-3">
+        <div className="w-full h-2 rounded-full bg-white/10" />
+        <div className="w-full h-2 rounded-full bg-white/10" />
+        <div className="w-4/5 h-2 rounded-full bg-white/10" />
+      </div>
+    </div>
+
+    <div className="mt-auto grid grid-cols-2 gap-3">
+      <div className="h-6 rounded-lg bg-blue-500/20 border border-blue-500/20" />
+      <div className="h-6 rounded-lg bg-purple-500/20 border border-purple-500/20" />
+      <div className="h-6 rounded-lg bg-red-500/20 border border-red-500/20" />
+    </div>
+
+    {/* Decorative glow behind the CV */}
+    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-2xl opacity-20 -z-10" />
+  </motion.div>
+);
 
 export default function LandingPage() {
   const router = useRouter();
   
-  // Custom hook handles file parsing and auto-routes to /templates on success
   const { 
     status, 
     fileName, 
@@ -22,99 +61,126 @@ export default function LandingPage() {
     router.push('/templates');
   };
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 20 } }
+  };
+
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-red-200 selection:text-red-900 relative overflow-hidden">
-      
-      {/* Decorative background blurs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-red-100 rounded-[100%] blur-[120px] opacity-50 pointer-events-none" />
-      
-      {/* HEADER */}
-      <header className="w-full px-8 py-6 flex items-center justify-between relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-xl">CV</span>
-          </div>
-          <span className="text-xl font-extrabold text-slate-800 tracking-tight">Modern CV Builder</span>
-        </div>
-      </header>
+    <main className="flex flex-col relative w-full h-full">
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 -mt-12">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight text-center mb-12 max-w-3xl">
-          How will you make your resume?
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-          
-          {/* CARD 1: Upload Existing */}
-          <div 
-            onClick={status === 'parsing' ? undefined : triggerUpload}
-            className={`
-              relative group flex flex-col items-center text-center p-10 md:p-14 
-              bg-white rounded-[2rem] border-2 border-slate-200 shadow-sm 
-              transition-all duration-300 ease-out overflow-hidden
-              ${status === 'parsing' ? 'cursor-wait border-red-300' : 'cursor-pointer hover:border-red-400 hover:shadow-xl hover:-translate-y-1'}
-            `}
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 relative z-10 pb-20 pt-10">
+        
+        {/* Left Column: Text & CTA */}
+        <div className="flex-1 flex flex-col w-full">
+          <motion.div 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="visible"
+            className="flex flex-col gap-6"
           >
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              onChange={handleInputChange}
-              className="hidden"
-            />
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md w-fit text-blue-300 text-xs sm:text-sm font-medium shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+              <Sparkles size={16} className="text-blue-400" />
+              <span>AI-Powered & ATS-Optimized</span>
+            </motion.div>
+            
+            <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-sm">
+              Craft Your Perfect <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-red-400">ATS-Friendly</span> CV <br className="hidden sm:block" />
+              in Minutes
+            </motion.h1>
+            
+            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-xl font-light">
+              Unlock your career potential with our intelligent resume builder. Upload your existing CV or start from scratch with beautiful, premium templates.
+            </motion.p>
+            
+            {/* CTA Cards */}
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 mt-8 w-full max-w-2xl">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={handleInputChange}
+                className="hidden"
+              />
 
-            {status === 'parsing' ? (
-              <div className="flex flex-col items-center animate-pulse">
-                <Loader2 className="animate-spin text-red-500 mb-6" size={56} />
-                <h2 className="text-2xl font-bold text-slate-900 mb-3">AI is analyzing...</h2>
-                <p className="text-slate-500 text-sm">{fileName}</p>
-              </div>
-            ) : (
-              <>
-                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
-                  <FileUp size={40} />
-                </div>
-                <h2 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-2">
-                  <Sparkles className="text-amber-500" size={20} />
-                  I already have a resume
-                </h2>
-                <p className="text-slate-500 mb-8">
-                  Upload your existing resume to make quick edits. Our AI will automatically extract your details.
-                </p>
-                <div className="mt-auto px-6 py-3 rounded-full bg-slate-900 text-white text-sm font-semibold shadow-sm group-hover:bg-red-600 transition-colors flex items-center gap-2">
-                  <Upload size={16} /> Upload PDF/DOCX
-                </div>
-                {status === 'error' && errorMessage && (
-                  <p className="text-red-500 text-xs mt-4 font-medium">{errorMessage}</p>
+              {/* Upload Card */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={status === 'parsing' ? undefined : triggerUpload}
+                className={`
+                  flex-1 flex flex-col p-6 rounded-2xl backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group
+                  ${status === 'parsing' ? 'cursor-wait bg-white/5' : 'cursor-pointer bg-white/5 hover:bg-white/10'}
+                `}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {status === 'parsing' ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-3 relative z-10 py-2">
+                    <Loader2 className="animate-spin text-blue-400" size={32} />
+                    <p className="text-white font-medium text-sm">AI is analyzing...</p>
+                    <p className="text-slate-400 text-xs truncate w-full text-center px-4">{fileName}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full relative z-10">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-5 shadow-inner border border-blue-500/20 group-hover:bg-blue-500/30 transition-colors">
+                      <Upload size={20} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Import Resume</h3>
+                    <p className="text-slate-400 text-sm mb-6 flex-1 font-light">
+                      Let AI extract details from your existing PDF or DOCX file instantly.
+                    </p>
+                    <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm group-hover:gap-3 transition-all mt-auto">
+                      Upload File <ArrowRight size={16} />
+                    </div>
+                    {errorMessage && (
+                      <p className="text-red-400 text-xs mt-3 font-medium">{errorMessage}</p>
+                    )}
+                  </div>
                 )}
-              </>
-            )}
-          </div>
+              </motion.div>
 
-          {/* CARD 2: Start from Scratch */}
-          <div 
-            onClick={handleStartFromScratch}
-            className="group cursor-pointer flex flex-col items-center text-center p-10 md:p-14 bg-white rounded-[2rem] border-2 border-slate-200 shadow-sm transition-all duration-300 ease-out hover:border-slate-400 hover:shadow-xl hover:-translate-y-1"
-          >
-            <div className="w-20 h-20 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
-              <Plus size={40} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-3">
-              Start from scratch
-            </h2>
-            <p className="text-slate-500 mb-8">
-              We'll guide you step-by-step through choosing a layout and filling out your details perfectly.
-            </p>
-            <div className="mt-auto px-6 py-3 rounded-full bg-white border border-slate-200 text-slate-700 text-sm font-semibold shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-colors">
-              Browse Templates
-            </div>
-          </div>
+              {/* Start from Scratch Card */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleStartFromScratch}
+                className="flex-1 flex flex-col p-6 rounded-2xl backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group cursor-pointer bg-white/5 hover:bg-white/10"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="flex flex-col h-full relative z-10">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center mb-5 shadow-inner border border-red-500/20 group-hover:bg-red-500/30 transition-colors">
+                    <Plus size={20} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Start from Scratch</h3>
+                  <p className="text-slate-400 text-sm mb-6 flex-1 font-light">
+                    Build a perfect resume step-by-step with our elegant, optimized templates.
+                  </p>
+                  <div className="flex items-center gap-2 text-red-400 font-semibold text-sm group-hover:gap-3 transition-all mt-auto">
+                    Browse Templates <ArrowRight size={16} />
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
 
+          </motion.div>
         </div>
+
+        {/* Right Column: Floating Representation */}
+        <div className="flex-1 flex justify-center lg:justify-end w-full lg:w-auto">
+          <FloatingCV />
+        </div>
+
       </div>
-      
     </main>
   );
 }

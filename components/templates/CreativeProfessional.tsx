@@ -117,10 +117,10 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={true}>
 
         {/* SIDEBAR */}
-        <View style={styles.sidebar}>
+        <View style={styles.sidebar} wrap={true}>
           <Text style={styles.name}>{data.personalInfo.fullName || 'YOUR NAME'}</Text>
           {data.personalInfo.title && <Text style={styles.title}>{formatJobTitle(data.personalInfo.title)}</Text>}
           
@@ -131,7 +131,7 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
           {data.personalInfo.linkedin && <Text style={styles.contactItem}><Link style={styles.sidebarLink} src={data.personalInfo.linkedin.startsWith('http') ? data.personalInfo.linkedin : `https://${data.personalInfo.linkedin}`}>{data.personalInfo.linkedin.replace(/^https?:\/\//, '')}</Link></Text>}
           {data.personalInfo.github && <Text style={styles.contactItem}><Link style={styles.sidebarLink} src={data.personalInfo.github.startsWith('http') ? data.personalInfo.github : `https://${data.personalInfo.github}`}>{data.personalInfo.github.replace(/^https?:\/\//, '')}</Link></Text>}
 
-          {(data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
+          {data.visibleSections?.skills !== false && (data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
             <>
               <Text style={styles.sidebarSectionTitle}>Skills</Text>
               {data.technicalSkills.programming.length > 0 && (
@@ -167,7 +167,7 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
             </>
           )}
 
-          {data.education.length > 0 && (
+          {data.visibleSections?.education !== false && data.education.length > 0 && (
             <>
               <Text style={styles.sidebarSectionTitle}>Education</Text>
               {data.education.map((edu) => (
@@ -183,10 +183,10 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
         </View>
 
         {/* MAIN CONTENT */}
-        <View style={styles.main}>
+        <View style={styles.main} wrap={true}>
           
           {/* PROFESSIONAL SUMMARY */}
-          {data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
+          {data.visibleSections?.summary !== false && data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Profile</Text>
               <Html stylesheet={htmlStyles}>{data.professionalSummaryHtml}</Html>
@@ -194,7 +194,7 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
           )}
 
           {/* PROFESSIONAL EXPERIENCE */}
-          {data.professionalExperience.length > 0 && (
+          {data.visibleSections?.experience !== false && data.professionalExperience.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Experience</Text>
               {data.professionalExperience.map((exp) => (
@@ -215,7 +215,7 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
           )}
 
           {/* PROJECT EXPERIENCE */}
-          {data.projectExperience.length > 0 && (
+          {data.visibleSections?.projects !== false && data.projectExperience.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Projects</Text>
               {data.projectExperience.map((proj) => (
@@ -236,7 +236,7 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
           )}
 
           {/* CERTIFICATIONS & TRAINING */}
-          {(data.certifications && data.certifications.length > 0) && (
+          {data.visibleSections?.certifications !== false && (data.certifications && data.certifications.length > 0) && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Certifications</Text>
               <View style={styles.bulletList}>
@@ -247,6 +247,25 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
                   </View>
                 ))}
               </View>
+            </View>
+          )}
+
+          {/* REFERENCES */}
+          {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>References</Text>
+              {data.references.map((ref) => (
+                <View key={ref.id} style={{ marginBottom: 8 }}>
+                  <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 10, color: THEME_DARK }}>{ref.name}</Text>
+                  <Text style={{ fontFamily: 'Helvetica-Oblique', fontSize: 9, color: THEME_ACCENT }}>
+                    {ref.title}{ref.title && ref.organization ? ', ' : ''}{ref.organization}
+                  </Text>
+                  <View style={{ flexDirection: 'row', marginTop: 2 }}>
+                    {ref.phone && <Text style={{ fontSize: 9, color: '#475569', marginRight: 10 }}>{ref.phone}</Text>}
+                    {ref.email && <Link style={{ fontSize: 9, color: THEME_ACCENT, textDecoration: 'none' }} src={`mailto:${ref.email}`}>{ref.email}</Link>}
+                  </View>
+                </View>
+              ))}
             </View>
           )}
 

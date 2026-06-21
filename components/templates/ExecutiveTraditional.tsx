@@ -95,7 +95,8 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={true}>
+        <View wrap={true}>
 
         {/* HEADER */}
         <View style={styles.header}>
@@ -118,7 +119,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         </View>
 
         {/* PROFESSIONAL SUMMARY */}
-        {data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
+        {data.visibleSections?.summary !== false && data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Professional Summary</Text>
             <Html stylesheet={htmlStyles}>{data.professionalSummaryHtml}</Html>
@@ -126,7 +127,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROFESSIONAL EXPERIENCE */}
-        {data.professionalExperience.length > 0 && (
+        {data.visibleSections?.experience !== false && data.professionalExperience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Professional Experience</Text>
             {data.professionalExperience.map((exp) => (
@@ -146,7 +147,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* PROJECT EXPERIENCE */}
-        {data.projectExperience.length > 0 && (
+        {data.visibleSections?.projects !== false && data.projectExperience.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Select Projects</Text>
             {data.projectExperience.map((proj) => (
@@ -167,7 +168,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* TECHNICAL SKILLS */}
-        {(data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
+        {data.visibleSections?.skills !== false && (data.technicalSkills.programming.length > 0 || data.technicalSkills.databaseSQL.length > 0 || data.technicalSkills.apiIntegrationTesting.length > 0 || data.technicalSkills.systemTestingQA.length > 0 || data.technicalSkills.tools.length > 0 || data.technicalSkills.consultingBusiness.length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Core Competencies & Skills</Text>
             {data.technicalSkills.programming.length > 0 && <View style={styles.skillRow}><Text style={styles.skillLabel}>Programming:</Text><Text style={styles.skillValue}>{data.technicalSkills.programming.join(', ')}</Text></View>}
@@ -180,7 +181,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* EDUCATION */}
-        {data.education.length > 0 && (
+        {data.visibleSections?.education !== false && data.education.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Education</Text>
             {data.education.map((edu) => (
@@ -197,7 +198,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* CERTIFICATIONS & TRAINING */}
-        {(data.certifications && data.certifications.length > 0) && (
+        {data.visibleSections?.certifications !== false && (data.certifications && data.certifications.length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Certifications & Training</Text>
             <View style={styles.bulletList}>
@@ -212,7 +213,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
         )}
 
         {/* REFERENCES */}
-        {(data.references && data.references.length > 0) && (
+        {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>References</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
@@ -230,6 +231,7 @@ export const ExecutiveTraditional = ({ data }: { data: CVData }) => {
           </View>
         )}
 
+        </View>
       </Page>
     </Document>
   );
