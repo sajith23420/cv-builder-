@@ -10,6 +10,7 @@ import {
   ChevronDown, ChevronUp, FileIcon,
   Award, Users
 } from 'lucide-react';
+import CVUploadSection from './CVUploadSection';
 import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill
@@ -89,6 +90,9 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
           {pdfDownloadButton}
         </div>
       </div>
+
+      {/* Start from Existing CV - Upload Section */}
+      <CVUploadSection />
 
       {/* Personal Info Section */}
       <div className="space-y-4">

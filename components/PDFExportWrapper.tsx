@@ -2,16 +2,32 @@
 
 import React, { useEffect, useState } from 'react';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import { ModernCV } from '@/components/templates/ModernCV';
 import { FileText as FilePdfIcon, Loader2 } from 'lucide-react';
-import { CVData } from '@/store/useCVStore';
+import { useCVStore } from '@/store/useCVStore';
+
+// Templates
+import { ModernMinimalist } from '@/components/templates/ModernMinimalist';
+import { ExecutiveTraditional } from '@/components/templates/ExecutiveTraditional';
+import { CreativeProfessional } from '@/components/templates/CreativeProfessional';
+import { TechFocused } from '@/components/templates/TechFocused';
+import { DataDense } from '@/components/templates/DataDense';
+import { IvyLeagueStandard } from '@/components/templates/IvyLeagueStandard';
 
 interface Props {
   mode: 'button' | 'viewer';
-  data: CVData;
 }
 
-export default function PDFExportWrapper({ mode, data }: Props) {
+const templates: Record<string, React.FC<{ data: any }>> = {
+  modern: ModernMinimalist,
+  executive: ExecutiveTraditional,
+  creative: CreativeProfessional,
+  tech: TechFocused,
+  dense: DataDense,
+  ivy: IvyLeagueStandard,
+};
+
+export default function PDFExportWrapper({ mode }: Props) {
+  const { cvData, selectedTemplate } = useCVStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -34,9 +50,11 @@ export default function PDFExportWrapper({ mode, data }: Props) {
     );
   }
 
+  const TemplateComponent = templates[selectedTemplate] || templates.modern;
+
   if (mode === 'button') {
     return (
-      <PDFDownloadLink document={<ModernCV data={data} />} fileName="modern_cv.pdf">
+      <PDFDownloadLink document={<TemplateComponent data={cvData} />} fileName="resume.pdf">
         {({ loading }) => (
           <button 
             disabled={loading}
@@ -51,7 +69,7 @@ export default function PDFExportWrapper({ mode, data }: Props) {
 
   return (
     <PDFViewer className="w-full h-full border-none" showToolbar={true}>
-      <ModernCV data={data} />
+      <TemplateComponent data={cvData} />
     </PDFViewer>
   );
 }

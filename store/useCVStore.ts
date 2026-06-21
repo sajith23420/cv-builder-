@@ -66,6 +66,7 @@ export interface CVData {
 
 interface CVStore {
   cvData: CVData;
+  selectedTemplate: string;
   setPersonalInfo: (info: Partial<PersonalInfo>) => void;
   setProfessionalSummaryHtml: (html: string) => void;
   setTechnicalSkills: (skills: Partial<TechnicalSkills>) => void;
@@ -89,6 +90,7 @@ interface CVStore {
   removeReference: (id: string) => void;
 
   loadImportedData: (data: CVData) => void;
+  setSelectedTemplate: (templateId: string) => void;
 }
 
 const initialData: CVData = {
@@ -121,6 +123,7 @@ export const useCVStore = create<CVStore>()(
   persist(
     (set) => ({
       cvData: initialData,
+      selectedTemplate: 'modern',
       setPersonalInfo: (info) =>
         set((state) => ({ cvData: { ...state.cvData, personalInfo: { ...state.cvData.personalInfo, ...info } } })),
       setProfessionalSummaryHtml: (html) =>
@@ -188,7 +191,8 @@ export const useCVStore = create<CVStore>()(
         })),
 
       loadImportedData: (data) => set({ cvData: { ...initialData, ...data } }),
+      setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
     }),
-    { name: 'modern-cv-storage-rich' }
+    { name: 'cv-builder-storage-v3' }
   )
 );
