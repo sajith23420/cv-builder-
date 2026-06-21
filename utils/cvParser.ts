@@ -83,6 +83,15 @@ function splitToArray(value: string | undefined): string[] {
  */
 export function mapParsedDataToCVData(parsed: ParsedCVData): CVData {
   return {
+    visibleSections: {
+      summary: true,
+      skills: true,
+      experience: true,
+      projects: true,
+      education: true,
+      certifications: true,
+      references: true,
+    },
     personalInfo: {
       fullName: parsed.name ?? '',
       title: parsed.title ?? '',
