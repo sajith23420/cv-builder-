@@ -1,5 +1,13 @@
+// ---------------------------------------------------------------------------
+// POLYFILL FOR VERCEL — must run before pdf-parse is loaded.
+// ES `import` statements are hoisted, so we use dynamic import() below
+// to ensure this polyfill executes first.
+// ---------------------------------------------------------------------------
+if (typeof global !== 'undefined' && typeof (global as any).DOMMatrix === 'undefined') {
+  (global as any).DOMMatrix = class DOMMatrix {};
+}
+
 import { NextResponse } from 'next/server';
-import { PDFParse } from 'pdf-parse';
 import Groq from 'groq-sdk';
 
 // ---------------------------------------------------------------------------
@@ -82,12 +90,15 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    // -----------------------------------------------------------------------
+    // Dynamically import pdf-parse so the DOMMatrix polyfill above is
+    // guaranteed to have executed before pdfjs-dist initialises.
+    // -----------------------------------------------------------------------
     let extractedText = '';
     try {
-      const parser = new PDFParse({ data: buffer });
-      const result = await parser.getText();
-      extractedText = result.text;
-      await parser.destroy();
+      const pdfParse = (await import('pdf-parse')).default;
+      const data = await pdfParse(buffer);
+      extractedText = data.text;
     } catch (error) {
       console.error('PDF Parse Error:', error);
       return NextResponse.json({ error: 'Failed to read PDF file. It might be corrupted.' }, { status: 422 });
@@ -97,13 +108,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Could not extract meaningful text from the PDF.' }, { status: 422 });
     }
 
-    // Call Groq API with the updated, currently supported model
+    // Call Groq API
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: `Parse this CV text into JSON:\n\n${extractedText}` }
       ],
-      model: 'llama-3.3-70b-versatile', // UPDATED: Changed from deprecated 'llama3-70b-8192' to the new versatile model
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.1,
       response_format: { type: 'json_object' },
     });
