@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface PersonalInfo {
   fullName: string;
@@ -233,9 +232,7 @@ const initialData: CVData = {
   },
 };
 
-export const useCVStore = create<CVStore>()(
-  persist(
-    (set) => ({
+export const useCVStore = create<CVStore>()((set) => ({
       cvData: initialData,
       selectedTemplate: 'modern',
       setPersonalInfo: (info) =>
@@ -324,29 +321,5 @@ export const useCVStore = create<CVStore>()(
             },
           },
         })),
-    }),
-    {
-      name: 'cv-builder-storage-v5',
-      merge: (persistedState: any, currentState: CVStore): CVStore => {
-        if (!persistedState) return currentState;
-        const persisted = persistedState as CVStore;
-        return {
-          ...currentState,
-          ...persisted,
-          cvData: {
-            ...currentState.cvData,
-            ...persisted.cvData,
-            // Ensure references array is always populated from initialData if missing/empty in persisted state
-            references: (persisted.cvData?.references && persisted.cvData.references.length > 0)
-              ? persisted.cvData.references
-              : initialData.references,
-            visibleSections: {
-              ...initialData.visibleSections,
-              ...(persisted.cvData?.visibleSections || {}),
-            },
-          },
-        };
-      },
-    }
-  )
+    })
 );
