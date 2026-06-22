@@ -304,7 +304,15 @@ export const useCVStore = create<CVStore>()(
           cvData: { ...state.cvData, references: state.cvData.references.filter((r) => r.id !== id) },
         })),
 
-      loadImportedData: (data) => set({ cvData: { ...initialData, ...data } }),
+      loadImportedData: (data) => set({
+        cvData: {
+          ...initialData,
+          ...data,
+          // Preserve initialData.references if the imported data has none (prevents empty references overwriting sample data)
+          references: (data.references && data.references.length > 0) ? data.references : initialData.references,
+          visibleSections: { ...initialData.visibleSections, ...(data.visibleSections || {}) },
+        }
+      }),
       setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
       toggleSectionVisibility: (section) =>
         set((state) => ({
@@ -317,6 +325,28 @@ export const useCVStore = create<CVStore>()(
           },
         })),
     }),
-    { name: 'cv-builder-storage-v5' }
+    {
+      name: 'cv-builder-storage-v5',
+      merge: (persistedState: any, currentState: CVStore): CVStore => {
+        if (!persistedState) return currentState;
+        const persisted = persistedState as CVStore;
+        return {
+          ...currentState,
+          ...persisted,
+          cvData: {
+            ...currentState.cvData,
+            ...persisted.cvData,
+            // Ensure references array is always populated from initialData if missing/empty in persisted state
+            references: (persisted.cvData?.references && persisted.cvData.references.length > 0)
+              ? persisted.cvData.references
+              : initialData.references,
+            visibleSections: {
+              ...initialData.visibleSections,
+              ...(persisted.cvData?.visibleSections || {}),
+            },
+          },
+        };
+      },
+    }
   )
 );

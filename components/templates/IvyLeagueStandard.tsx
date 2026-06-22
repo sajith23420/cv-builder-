@@ -102,6 +102,14 @@ export const IvyLeagueStandard = ({ data }: { data: CVData }) => {
           </View>
         </View>
 
+        {/* PROFESSIONAL SUMMARY */}
+        {data.visibleSections?.summary !== false && data.professionalSummaryHtml && data.professionalSummaryHtml !== '<p><br></p>' && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Professional Summary</Text>
+            <Html stylesheet={htmlStyles}>{data.professionalSummaryHtml}</Html>
+          </View>
+        )}
+
         {/* EDUCATION (Academic formats typically put Education first) */}
         {data.visibleSections?.education !== false && data.education.length > 0 && (
           <View style={styles.section}>
@@ -199,11 +207,11 @@ export const IvyLeagueStandard = ({ data }: { data: CVData }) => {
         )}
 
         {/* REFERENCES */}
-        {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+        {data.visibleSections?.references !== false && ((data.references ?? []).length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>References</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {data.references.map((ref) => (
+              {(data.references ?? []).map((ref) => (
                 <View key={ref.id} style={{ width: '50%', marginBottom: 8 }}>
                   <Text style={styles.itemTitle}>{ref.name}</Text>
                   <Text style={{ fontSize: 10, fontFamily: 'Times-Italic', color: THEME_GRAY }}>

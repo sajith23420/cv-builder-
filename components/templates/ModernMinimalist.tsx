@@ -214,11 +214,11 @@ export const ModernMinimalist = ({ data }: { data: CVData }) => {
         )}
 
         {/* REFERENCES */}
-        {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+        {data.visibleSections?.references !== false && ((data.references ?? []).length > 0) && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>References</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-              {data.references.map((ref) => (
+              {(data.references ?? []).map((ref) => (
                 <View key={ref.id} style={styles.referenceBlock}>
                   <Text style={styles.referenceName}>{ref.name}</Text>
                   <Text style={styles.referenceTitleOrg}>

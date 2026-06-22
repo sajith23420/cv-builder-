@@ -265,11 +265,11 @@ export const TechFocused = ({ data }: { data: CVData }) => {
         )}
 
         {/* REFERENCES */}
-        {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+        {data.visibleSections?.references !== false && ((data.references ?? []).length > 0) && (
           <View style={styles.section}>
             <View style={styles.sectionTitleBox}><Text style={styles.sectionTitle}>~/references</Text></View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {data.references.map((ref) => (
+              {(data.references ?? []).map((ref) => (
                 <View key={ref.id} style={{ width: '50%', marginBottom: 10 }}>
                   <Text style={styles.itemTitle}>{ref.name}</Text>
                   <Text style={{ fontSize: 10, fontFamily: 'Courier', color: THEME_GRAY, marginTop: 2 }}>

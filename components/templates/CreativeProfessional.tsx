@@ -251,10 +251,10 @@ export const CreativeProfessional = ({ data }: { data: CVData }) => {
           )}
 
           {/* REFERENCES */}
-          {data.visibleSections?.references !== false && (data.references && data.references.length > 0) && (
+          {data.visibleSections?.references !== false && ((data.references ?? []).length > 0) && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>References</Text>
-              {data.references.map((ref) => (
+              {(data.references ?? []).map((ref) => (
                 <View key={ref.id} style={{ marginBottom: 8 }}>
                   <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 10, color: THEME_DARK }}>{ref.name}</Text>
                   <Text style={{ fontFamily: 'Helvetica-Oblique', fontSize: 9, color: THEME_ACCENT }}>
