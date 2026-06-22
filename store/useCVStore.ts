@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface PersonalInfo {
   fullName: string;
@@ -233,120 +232,93 @@ const initialData: CVData = {
   },
 };
 
-export const useCVStore = create<CVStore>()(
-  persist(
-    (set) => ({
-      cvData: initialData,
-      selectedTemplate: 'modern',
-      setPersonalInfo: (info) =>
-        set((state) => ({ cvData: { ...state.cvData, personalInfo: { ...state.cvData.personalInfo, ...info } } })),
-      setProfessionalSummaryHtml: (html) =>
-        set((state) => ({ cvData: { ...state.cvData, professionalSummaryHtml: html } })),
-      setTechnicalSkills: (skills) =>
-        set((state) => ({ cvData: { ...state.cvData, technicalSkills: { ...state.cvData.technicalSkills, ...skills } } })),
+export const useCVStore = create<CVStore>()((set) => ({
+  cvData: initialData,
+  selectedTemplate: 'modern',
+  setPersonalInfo: (info) =>
+    set((state) => ({ cvData: { ...state.cvData, personalInfo: { ...state.cvData.personalInfo, ...info } } })),
+  setProfessionalSummaryHtml: (html) =>
+    set((state) => ({ cvData: { ...state.cvData, professionalSummaryHtml: html } })),
+  setTechnicalSkills: (skills) =>
+    set((state) => ({ cvData: { ...state.cvData, technicalSkills: { ...state.cvData.technicalSkills, ...skills } } })),
 
-      addProfessionalExperience: (exp) =>
-        set((state) => ({ cvData: { ...state.cvData, professionalExperience: [...state.cvData.professionalExperience, exp] } })),
-      updateProfessionalExperience: (id, exp) =>
-        set((state) => ({
-          cvData: {
-            ...state.cvData,
-            professionalExperience: state.cvData.professionalExperience.map((e) => (e.id === id ? { ...e, ...exp } : e)),
-          },
-        })),
-      removeProfessionalExperience: (id) =>
-        set((state) => ({
-          cvData: { ...state.cvData, professionalExperience: state.cvData.professionalExperience.filter((e) => e.id !== id) },
-        })),
-
-      addProjectExperience: (proj) =>
-        set((state) => ({ cvData: { ...state.cvData, projectExperience: [...state.cvData.projectExperience, proj] } })),
-      updateProjectExperience: (id, proj) =>
-        set((state) => ({
-          cvData: {
-            ...state.cvData,
-            projectExperience: state.cvData.projectExperience.map((e) => (e.id === id ? { ...e, ...proj } : e)),
-          },
-        })),
-      removeProjectExperience: (id) =>
-        set((state) => ({
-          cvData: { ...state.cvData, projectExperience: state.cvData.projectExperience.filter((e) => e.id !== id) },
-        })),
-
-      addEducation: (edu) =>
-        set((state) => ({ cvData: { ...state.cvData, education: [...state.cvData.education, edu] } })),
-      updateEducation: (id, edu) =>
-        set((state) => ({
-          cvData: {
-            ...state.cvData,
-            education: state.cvData.education.map((e) => (e.id === id ? { ...e, ...edu } : e)),
-          },
-        })),
-      removeEducation: (id) =>
-        set((state) => ({
-          cvData: { ...state.cvData, education: state.cvData.education.filter((e) => e.id !== id) },
-        })),
-
-      setCertifications: (certs) =>
-        set((state) => ({ cvData: { ...state.cvData, certifications: certs } })),
-
-      addReference: (ref) =>
-        set((state) => ({ cvData: { ...state.cvData, references: [...state.cvData.references, ref] } })),
-      updateReference: (id, ref) =>
-        set((state) => ({
-          cvData: {
-            ...state.cvData,
-            references: state.cvData.references.map((r) => (r.id === id ? { ...r, ...ref } : r)),
-          },
-        })),
-      removeReference: (id) =>
-        set((state) => ({
-          cvData: { ...state.cvData, references: state.cvData.references.filter((r) => r.id !== id) },
-        })),
-
-      loadImportedData: (data) => set({
-        cvData: {
-          ...initialData,
-          ...data,
-          // Preserve initialData.references if the imported data has none (prevents empty references overwriting sample data)
-          references: (data.references && data.references.length > 0) ? data.references : initialData.references,
-          visibleSections: { ...initialData.visibleSections, ...(data.visibleSections || {}) },
-        }
-      }),
-      setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
-      toggleSectionVisibility: (section) =>
-        set((state) => ({
-          cvData: {
-            ...state.cvData,
-            visibleSections: {
-              ...state.cvData.visibleSections,
-              [section]: !state.cvData.visibleSections[section],
-            },
-          },
-        })),
-    }),
-    {
-      name: 'cv-builder-storage-v5',
-      merge: (persistedState: any, currentState: CVStore): CVStore => {
-        if (!persistedState) return currentState;
-        const persisted = persistedState as CVStore;
-        return {
-          ...currentState,
-          ...persisted,
-          cvData: {
-            ...currentState.cvData,
-            ...persisted.cvData,
-            // Ensure references array is always populated from initialData if missing/empty in persisted state
-            references: (persisted.cvData?.references && persisted.cvData.references.length > 0)
-              ? persisted.cvData.references
-              : initialData.references,
-            visibleSections: {
-              ...initialData.visibleSections,
-              ...(persisted.cvData?.visibleSections || {}),
-            },
-          },
-        };
+  addProfessionalExperience: (exp) =>
+    set((state) => ({ cvData: { ...state.cvData, professionalExperience: [...state.cvData.professionalExperience, exp] } })),
+  updateProfessionalExperience: (id, exp) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        professionalExperience: state.cvData.professionalExperience.map((e) => (e.id === id ? { ...e, ...exp } : e)),
       },
+    })),
+  removeProfessionalExperience: (id) =>
+    set((state) => ({
+      cvData: { ...state.cvData, professionalExperience: state.cvData.professionalExperience.filter((e) => e.id !== id) },
+    })),
+
+  addProjectExperience: (proj) =>
+    set((state) => ({ cvData: { ...state.cvData, projectExperience: [...state.cvData.projectExperience, proj] } })),
+  updateProjectExperience: (id, proj) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        projectExperience: state.cvData.projectExperience.map((e) => (e.id === id ? { ...e, ...proj } : e)),
+      },
+    })),
+  removeProjectExperience: (id) =>
+    set((state) => ({
+      cvData: { ...state.cvData, projectExperience: state.cvData.projectExperience.filter((e) => e.id !== id) },
+    })),
+
+  addEducation: (edu) =>
+    set((state) => ({ cvData: { ...state.cvData, education: [...state.cvData.education, edu] } })),
+  updateEducation: (id, edu) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        education: state.cvData.education.map((e) => (e.id === id ? { ...e, ...edu } : e)),
+      },
+    })),
+  removeEducation: (id) =>
+    set((state) => ({
+      cvData: { ...state.cvData, education: state.cvData.education.filter((e) => e.id !== id) },
+    })),
+
+  setCertifications: (certs) =>
+    set((state) => ({ cvData: { ...state.cvData, certifications: certs } })),
+
+  addReference: (ref) =>
+    set((state) => ({ cvData: { ...state.cvData, references: [...state.cvData.references, ref] } })),
+  updateReference: (id, ref) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        references: state.cvData.references.map((r) => (r.id === id ? { ...r, ...ref } : r)),
+      },
+    })),
+  removeReference: (id) =>
+    set((state) => ({
+      cvData: { ...state.cvData, references: state.cvData.references.filter((r) => r.id !== id) },
+    })),
+
+  loadImportedData: (data) => set({
+    cvData: {
+      ...initialData,
+      ...data,
+      // Preserve initialData.references if the imported data has none (prevents empty references overwriting sample data)
+      references: (data.references && data.references.length > 0) ? data.references : initialData.references,
+      visibleSections: { ...initialData.visibleSections, ...(data.visibleSections || {}) },
     }
-  )
-);
+  }),
+  setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
+  toggleSectionVisibility: (section) =>
+    set((state) => ({
+      cvData: {
+        ...state.cvData,
+        visibleSections: {
+          ...state.cvData.visibleSections,
+          [section]: !state.cvData.visibleSections[section],
+        },
+      },
+    })),
+}));
