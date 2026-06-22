@@ -3,14 +3,12 @@
 import React, { useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useCVStore } from '@/store/useCVStore';
-import { generateWordDocument } from '@/utils/generateWord';
 import { 
   User, FileText, Briefcase, 
   Code, GraduationCap, Plus, Trash2,
-  ChevronDown, ChevronUp, FileIcon,
+  ChevronDown, ChevronUp,
   Award, Users
 } from 'lucide-react';
-import CVUploadSection from './CVUploadSection';
 import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill
@@ -19,11 +17,7 @@ const ReactQuill = dynamic(() => import('react-quill-new'), {
   loading: () => <div className="h-32 bg-black/20 border border-white/10 animate-pulse rounded-xl"></div> 
 });
 
-interface CVFormProps {
-  pdfDownloadButton?: React.ReactNode;
-}
-
-export default function CVForm({ pdfDownloadButton }: CVFormProps) {
+export default function CVForm() {
   const { 
     cvData, setPersonalInfo, setProfessionalSummaryHtml, setTechnicalSkills,
     addProfessionalExperience, updateProfessionalExperience, removeProfessionalExperience,
@@ -49,14 +43,7 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
     ]
   }), []);
 
-  const handleDownloadWord = async () => {
-    try {
-      await generateWordDocument(cvData);
-    } catch (error) {
-      console.error("Error generating Word document:", error);
-      alert("Failed to generate Word document.");
-    }
-  };
+
 
   const SectionHeader = ({ id, icon: Icon, title, sectionKey }: { id: string, icon: any, title: string, sectionKey?: keyof typeof cvData.visibleSections }) => {
     const isVisible = sectionKey ? cvData.visibleSections[sectionKey] : true;
@@ -98,25 +85,6 @@ export default function CVForm({ pdfDownloadButton }: CVFormProps) {
 
   return (
     <div className="max-w-4xl mx-auto pb-12 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-white gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">CV Editor</h1>
-          <p className="text-slate-400 text-sm mt-1 font-light">Complete your details below to instantly update the PDF preview.</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={handleDownloadWord}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600/80 hover:bg-blue-600 rounded-xl transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] border border-blue-500/50"
-          >
-            <FileIcon size={16} /> Download DOCX
-          </button>
-          
-          {pdfDownloadButton}
-        </div>
-      </div>
-
-      {/* Start from Existing CV - Upload Section */}
-      <CVUploadSection />
 
       {/* Personal Info Section */}
       <div className="space-y-4">

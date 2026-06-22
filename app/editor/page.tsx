@@ -63,7 +63,7 @@ export default function EditorPage() {
         {/* LEFT SIDE: SCROLLABLE FORM */}
         <div className={`w-full lg:w-[45%] xl:w-[40%] h-full overflow-y-auto border-r border-white/10 custom-scrollbar bg-white/5 backdrop-blur-md ${activeTab === 'editor' ? 'block' : 'hidden lg:block'}`}>
           <div className="p-4 md:p-8 lg:px-12 pt-8">
-            <CVForm pdfDownloadButton={<PDFExportWrapper mode="button" />} />
+            <CVForm />
           </div>
         </div>
         
